@@ -638,10 +638,21 @@ body[data-mode] .site-header { background: rgba(8, 20, 30, .55); }
         : `${name} ${color} Version 1.png`;
     }
 
+    // On these battlefields the blue player starts on the left.
+    const blueLeftMaps = new Set(['Riverlands', 'Caldera', 'Emerald Jungle']);
+
     function getOptions(name) {
-      return activeMode === '1v1'
-        ? ['Red', 'Blue'].map(x => ({ label: `${x} player`, file: getSoloFile(name, x) }))
-        : (maps2[name] || []);
+      if (activeMode !== '1v1') {
+        return maps2[name] || [];
+      }
+
+      const leftColor = blueLeftMaps.has(name) ? 'Blue' : 'Red';
+      const rightColor = leftColor === 'Red' ? 'Blue' : 'Red';
+
+      return [
+        { label: 'Left player', file: getSoloFile(name, leftColor) },
+        { label: 'Right player', file: getSoloFile(name, rightColor) }
+      ];
     }
 
     function openViewer(name, option) {
