@@ -86,6 +86,7 @@
     .map-meta { color: var(--gold); letter-spacing: .13em; text-transform: uppercase; font-size: 10px; font-weight: 800; }
     .map-name { margin: 8px 0 17px; font: 25px/1.15 Georgia, serif; min-height: 28px; }
     .map-actions { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+    .map-actions > :only-child { grid-column: 1 / -1; }
     .team-choice { min-width: 0; padding: 10px 8px; border-radius: 8px; border: 1px solid #9faea04a; background: #1b303bd1; color: #e9efe8; font-size: 12px; line-height: 1.4; font-weight: 720; transition: background .2s,border-color .2s; }
     .team-choice:hover { background: #34454b; border-color: var(--gold); }
     .empty { padding: 55px 0; color: #c5cdd1; text-align: center; }
@@ -563,6 +564,209 @@ body[data-mode] .site-header { background: rgba(8, 20, 30, .55); }
     clip-path: inset(0 round 21px);
   }
 }
+
+/* Navigation between layouts of the currently opened battlefield. */
+.viewer-navigation { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 12px 18px; border-top: 1px solid rgba(224,209,180,.12); background: #0b1723; }
+.viewer-navigation[hidden] { display: none !important; }
+.viewer-nav-button { display: inline-flex; align-items: center; justify-content: center; min-width: 46px; min-height: 42px; padding: 8px 14px; background: #182d3a; border: 1px solid rgba(227,189,116,.4); border-radius: 10px; color: #f5f0e5; font-size: 22px; line-height: 1; transition: background .2s, border-color .2s; }
+.viewer-nav-button:hover { background: #294252; border-color: var(--gold); }
+.viewer-nav-status { min-width: 180px; text-align: center; color: var(--muted); font-size: 13px; }
+.viewer-nav-status strong { display: block; color: #f5f0e5; font-size: 14px; font-weight: 650; }
+@media (max-width: 600px) { .viewer-navigation { gap: 8px; padding: 10px; } .viewer-nav-status { min-width: 0; flex: 1; } }
+
+/* v13: keep the enlarged map and variant controls inside the viewport. */
+.viewer[open] {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  height: calc(100dvh - 24px);
+  max-height: calc(100dvh - 24px);
+  overflow: hidden;
+}
+.viewer-map {
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  padding: 10px;
+}
+.viewer-art-frame {
+  height: 100%;
+  max-height: 100%;
+  max-width: 100%;
+  min-height: 0;
+}
+.viewer-art-frame img {
+  max-width: 100%;
+  max-height: 100%;
+}
+.viewer-head, .viewer-navigation, .viewer-foot { min-height: 0; }
+@media (max-height: 560px) {
+  .viewer-head { padding-block: 8px; }
+  .viewer-navigation { padding-block: 6px; }
+  .viewer-foot { padding-block: 7px; }
+  .viewer-map { padding: 5px; }
+}
+
+/* v18: preview images open their currently displayed layout. */
+.thumb-button {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid #ffffff1c;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  cursor: zoom-in;
+  -webkit-tap-highlight-color: transparent;
+}
+.thumb-button .map-art-frame { transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease; }
+.thumb-button:hover .map-art-frame,
+.thumb-button:focus-visible .map-art-frame {
+  border-color: rgba(249, 216, 148, .72);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .44);
+  transform: scale(1.015);
+}
+.thumb-button::after {
+  content: '⌕';
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(249, 216, 148, .45);
+  border-radius: 50%;
+  background: rgba(8, 18, 28, .83);
+  color: #f9d894;
+  font: 27px/1 Georgia, serif;
+  pointer-events: none;
+  opacity: .65;
+  transition: opacity .2s ease, background .2s ease;
+}
+.thumb-button:hover::after,
+.thumb-button:focus-visible::after { opacity: 1; background: #213746; }
+@media (prefers-reduced-motion: reduce) {
+  .thumb-button .map-art-frame, .thumb-button::after { transition: none; }
+}
+
+/* v19: square map previews fill the entire card width without cropping the map. */
+.thumb-container.thumb-button {
+  aspect-ratio: 1 / 1;
+  padding: 0;
+}
+.thumb-button .map-art-frame {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: #0a1824;
+}
+.thumb-button .map-art-frame .map-thumb {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  object-fit: contain;
+  border-radius: 0;
+}
+.thumb-button:hover .map-art-frame,
+.thumb-button:focus-visible .map-art-frame {
+  border: 0;
+  box-shadow: none;
+  transform: none;
+}
+.thumb-button:hover .map-thumb,
+.thumb-button:focus-visible .map-thumb {
+  filter: brightness(1.065);
+}
+
+/* v20: edge-to-edge previews without image-edge seams. */
+.thumb-container.thumb-button {
+  isolation: isolate;
+  background: #102332;
+}
+.thumb-button .map-art-frame {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: #102332;
+}
+.thumb-button .map-art-frame .map-thumb {
+  position: relative;
+  z-index: 1;
+  object-fit: cover;
+  object-position: center;
+  /* The small overscan hides light pixels from the original image borders. */
+  transform: scale(1.065);
+  transition: filter .2s ease;
+}
+/* Wide maps retain their full layout, with a soft backdrop instead of black bars. */
+.thumb-container.thumb-button.landscape-preview .map-art-frame::before {
+  content: '';
+  position: absolute;
+  inset: -20px;
+  z-index: 0;
+  background-image: linear-gradient(rgba(7,19,30,.45),rgba(7,19,30,.45)),var(--preview-image);
+  background-position: center;
+  background-size: cover;
+  filter: blur(15px);
+}
+.thumb-container.thumb-button.landscape-preview .map-art-frame .map-thumb {
+  /* Wide battlefield artwork is already padded within its square PNG.
+     Cover the edge pixels rather than letterboxing the preview. */
+  object-fit: cover;
+  transform: scale(1.075);
+}
+@media (prefers-reduced-motion: reduce) {
+  .thumb-button .map-art-frame .map-thumb { transition: none; }
+}
+
+
+/* v22: easy return to game modes, including deep down the map catalog. */
+.catalog-head .back-button {
+  min-height: 48px;
+  padding: 12px 20px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.catalog-return {
+  position: fixed;
+  z-index: 12;
+  left: max(20px, env(safe-area-inset-left));
+  bottom: max(22px, env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
+  min-height: 54px;
+  padding: 12px 24px;
+  border: 1px solid rgba(249,216,148,.76);
+  border-radius: 16px;
+  background: rgba(12,27,39,.94);
+  color: #f9e8c4;
+  box-shadow: 0 12px 38px rgba(0,0,0,.55);
+  backdrop-filter: blur(12px);
+  font-size: 15px;
+  font-weight: 750;
+  transition: background .2s ease, border-color .2s ease, transform .2s ease;
+}
+.catalog-return:hover { background: #29404d; border-color: #f9d894; transform: translateY(-2px); }
+.catalog-return .return-arrow { font-size: 24px; line-height: 1; }
+.catalog { padding-bottom: 110px; }
+@media (max-width: 600px) {
+  .catalog-return {
+    left: 16px;
+    bottom: max(14px, env(safe-area-inset-bottom));
+    min-height: 50px;
+    padding: 11px 18px;
+    font-size: 14px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .catalog-return { transition: none; }
+}
+
 </style>
 </head>
 <body>
@@ -599,7 +803,7 @@ body[data-mode] .site-header { background: rgba(8, 20, 30, .55); }
 <div class="eyebrow" id="catalog-eyebrow">Map archive</div>
 <h1 class="catalog-title" id="catalog-title">Choose a battlefield</h1>
 </div>
-<button class="back-button" id="backmode" type="button">←  All game modes</button>
+
 </div>
 <div class="catalog-controls">
 <input aria-label="Search maps" autocomplete="off" class="search" id="search" placeholder="Search a battlefield..." type="search"/>
@@ -607,6 +811,7 @@ body[data-mode] .site-header { background: rgba(8, 20, 30, .55); }
 <div class="map-grid" id="maps"></div>
 <p class="empty" hidden="" id="empty">No maps found. Try another name.</p>
 </div>
+<button class="catalog-return" id="floating-backmode" type="button" aria-label="Return to game modes"><span class="return-arrow" aria-hidden="true">←</span><span>Game modes</span></button>
 </section>
 </main>
 <footer class="site-footer">TERRITORIES ATLAS   ·   Unofficial fan project</footer>
@@ -616,6 +821,7 @@ body[data-mode] .site-header { background: rgba(8, 20, 30, .55); }
 <button class="back-button" id="close" type="button">✕  Close</button>
 </div>
 <div class="viewer-map"><div class="viewer-art-frame"><img alt="" id="full"/></div><p class="viewer-error" id="viewer-error"></p></div>
+<div class="viewer-navigation" id="viewer-navigation" hidden><button type="button" class="viewer-nav-button" id="viewer-prev" aria-label="Previous layout">←</button><div class="viewer-nav-status" aria-live="polite"><strong id="viewer-option-label"></strong><span id="viewer-counter"></span></div><button type="button" class="viewer-nav-button" id="viewer-next" aria-label="Next layout">→</button></div>
 <div class="viewer-foot"><span>Full map layout   /   Original resolution</span><a href="#" id="open" rel="noopener noreferrer" target="_blank">Open original image ↗</a></div>
 </dialog>
 <script>
@@ -630,6 +836,12 @@ body[data-mode] .site-header { background: rgba(8, 20, 30, .55); }
     const viewerImage = document.querySelector('#full');
     const viewerArtFrame = document.querySelector('.viewer-art-frame');
     const viewerError = document.querySelector('#viewer-error');
+    const viewerNavigation = document.querySelector('#viewer-navigation');
+    const viewerOptionLabel = document.querySelector('#viewer-option-label');
+    const viewerCounter = document.querySelector('#viewer-counter');
+    let viewerOptions = [];
+    let viewerOptionIndex = 0;
+    let viewerMapName = '';
     let activeMode = null;
 
     function getSoloFile(name, color) {
@@ -639,11 +851,51 @@ body[data-mode] .site-header { background: rgba(8, 20, 30, .55); }
     }
 
     // On these battlefields the blue player starts on the left.
-    const blueLeftMaps = new Set(['Riverlands', 'Caldera', 'Emerald Jungle']);
+    const blueLeftMaps = new Set(['Emerald Jungle', 'Archipelago']);
+
+    // Standard 2v2 team combinations correspond to their in-game positions.
+    const teamSideLabels = {
+      'Blue + Green': 'Right side',
+      'Red + Blue': 'Top side',
+      'Green + Yellow': 'Bottom side',
+      'Yellow + Green': 'Bottom side',
+      'Yellow + Red': 'Left side',
+      'Red + Yellow': 'Left side'
+    };
 
     function getOptions(name) {
-      if (activeMode !== '1v1') {
-        return maps2[name] || [];
+      if (activeMode === '2v2') {
+        const options = maps2[name] || [];
+
+        // Sakura Vale and Archipelago share identical layouts across team variants.
+        if (name === 'Sakura Vale' || name === 'Archipelago') {
+          return options.length
+            ? [{ label: 'View map', file: options[0].file }]
+            : [];
+        }
+
+        // Violet Highway has two sides, with Blue + Green on the left.
+        if (name === 'Violet Highway') {
+          return options.map(x => ({
+            label: x.label === 'Blue + Green' ? 'Left side' : 'Right side',
+            file: x.file
+          }));
+        }
+
+        // Black Forest uses special team combinations; keep their original names.
+        if (name === 'Black Forest') {
+          return options.map(x => ({ label: x.label, file: x.file }));
+        }
+
+        return options.map(x => ({
+          label: teamSideLabels[x.label] || x.label,
+          file: x.file
+        }));
+      }
+
+      // Sakura Vale has the same layout from either side in 1v1.
+      if (name === 'Sakura Vale') {
+        return [{ label: 'View map', file: getSoloFile(name, 'Red') }];
       }
 
       const leftColor = blueLeftMaps.has(name) ? 'Blue' : 'Red';
@@ -655,16 +907,36 @@ body[data-mode] .site-header { background: rgba(8, 20, 30, .55); }
       ];
     }
 
-    function openViewer(name, option) {
+    function displayViewerOption() {
+      const option = viewerOptions[viewerOptionIndex];
+      if (!option) return;
+
       document.querySelector('#view-side').textContent = `${activeMode} · ${option.label}`;
-      document.querySelector('#view-title').textContent = name;
+      document.querySelector('#view-title').textContent = viewerMapName;
+      viewerOptionLabel.textContent = option.label;
+      viewerCounter.textContent = `${viewerOptionIndex + 1} / ${viewerOptions.length}`;
+      viewerNavigation.hidden = viewerOptions.length <= 1;
       viewerImage.hidden = false;
       viewerArtFrame.hidden = false;
-      viewerImage.src = option.file;
-      viewerImage.alt = `${name} map for ${option.label}`;
       viewerError.style.display = 'none';
       viewerError.textContent = '';
+      viewerImage.alt = `${viewerMapName} map for ${option.label}`;
+      viewerImage.src = option.file;
       document.querySelector('#open').href = option.file;
+    }
+
+    function navigateViewer(step) {
+      if (!viewer.open || viewerOptions.length <= 1) return;
+
+      viewerOptionIndex = (viewerOptionIndex + step + viewerOptions.length) % viewerOptions.length;
+      displayViewerOption();
+    }
+
+    function openViewer(name, option, options) {
+      viewerMapName = name;
+      viewerOptions = options;
+      viewerOptionIndex = Math.max(0, options.indexOf(option));
+      displayViewerOption();
       viewer.showModal();
     }
 
@@ -679,8 +951,12 @@ body[data-mode] .site-header { background: rgba(8, 20, 30, .55); }
       const card = document.createElement('article');
       card.className = 'map-card';
 
-      const imageContainer = document.createElement('div');
-      imageContainer.className = 'thumb-container';
+      const imageContainer = document.createElement('button');
+      imageContainer.type = 'button';
+      imageContainer.className = 'thumb-container thumb-button';
+      if (name === 'Violet Highway') imageContainer.classList.add('landscape-preview');
+      imageContainer.setAttribute('aria-label', `Open ${name}: ${options[0].label}`);
+      imageContainer.addEventListener('click', () => openViewer(name, options[0], options));
       const thumbnail = document.createElement('img');
       thumbnail.className = 'map-thumb';
       thumbnail.loading = 'lazy';
@@ -702,6 +978,9 @@ body[data-mode] .site-header { background: rgba(8, 20, 30, .55); }
       }, { once: true });
       const imageFrame = document.createElement('div');
       imageFrame.className = 'map-art-frame';
+      if (name === 'Violet Highway') {
+        imageFrame.style.setProperty('--preview-image', `url("${encodeURI(options[0].file)}")`);
+      }
       imageFrame.append(thumbnail);
       imageContainer.append(imageFrame, fallback);
 
@@ -720,7 +999,7 @@ body[data-mode] .site-header { background: rgba(8, 20, 30, .55); }
         button.type = 'button';
         button.className = 'team-choice';
         button.textContent = x.label;
-        button.addEventListener('click', () => openViewer(name, x));
+        button.addEventListener('click', () => openViewer(name, x, options));
         actions.append(button);
       });
 
@@ -763,8 +1042,17 @@ body[data-mode] .site-header { background: rgba(8, 20, 30, .55); }
     document.querySelectorAll('.mode-card').forEach(x => {
       x.addEventListener('click', () => showCatalog(x.dataset.mode));
     });
-    document.querySelector('#backmode').addEventListener('click', showLanding);
+    document.querySelector('#floating-backmode').addEventListener('click', showLanding);
     document.querySelector('#brand').addEventListener('click', x => { x.preventDefault(); showLanding(); });
+    document.querySelector('#viewer-prev').addEventListener('click', () => navigateViewer(-1));
+    document.querySelector('#viewer-next').addEventListener('click', () => navigateViewer(1));
+    viewer.addEventListener('keydown', event => {
+      if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+        if (viewerOptions.length <= 1) return;
+        event.preventDefault();
+        navigateViewer(event.key === 'ArrowLeft' ? -1 : 1);
+      }
+    });
     document.querySelector('#close').addEventListener('click', () => viewer.close());
     viewer.addEventListener('click', x => { if (x.target === viewer) viewer.close(); });
     search.addEventListener('input', renderMaps);
